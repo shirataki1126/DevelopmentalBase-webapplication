@@ -1,0 +1,19 @@
+upstream dockerSwarm {
+  {% for docker_host in groups.docker_hosts %}
+    server {{ docker_host }}:11080;
+  {% endfor %}
+
+}
+
+log_format upstreamlog '[$time_local] $remote_addr $host $upstream_addr $request';
+
+server {
+  listen       80 default_server;
+  server_name  {{ site_servername }};
+  access_log /var/log/nginx/loadbalancer.log main;
+  access_log /var/log/nginx/upstream.log upstreamlog;
+
+  location / {
+    proxy_pass http://dockerSwarm;
+  }
+}

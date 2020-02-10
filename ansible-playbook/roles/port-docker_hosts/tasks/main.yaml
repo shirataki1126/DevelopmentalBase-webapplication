@@ -1,0 +1,28 @@
+---
+- name: Add firewalld rule for web application http port
+  firewalld:
+    port: 11080/tcp
+    permanent: yes
+    immediate: yes
+    state: enabled
+
+- name: Allow web application to listen on tcp port 11080
+  seport:
+    ports: 11080
+    proto: tcp
+    setype: http_port_t
+    state: present
+
+- name: Add firewalld rule for web application https port
+  firewalld:
+    port: 11443/tcp
+    permanent: yes
+    immediate: yes
+    state: enabled
+
+- name: Allow web application to listen on tcp port 11443
+  seport:
+    ports: 11443
+    proto: tcp
+    setype: http_port_t
+    state: present

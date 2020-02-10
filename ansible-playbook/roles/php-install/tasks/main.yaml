@@ -1,0 +1,17 @@
+---
+- name: Add remi repository from rpm
+  dnf:
+    name:
+      - http://rpms.famillecollet.com/enterprise/remi-release-8.rpm
+    state: present
+
+- name: Enable php-7.4 in remi
+  command: dnf -y module enable php:remi-7.4
+  args:
+    warn: no
+
+- name: Install php
+  dnf:
+    name:
+      - php
+    state: present

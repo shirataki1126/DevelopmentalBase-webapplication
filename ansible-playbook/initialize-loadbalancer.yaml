@@ -1,0 +1,9 @@
+---
+# A playbook for LoadBalancer server
+
+- hosts: loadbalancer
+  roles:
+    - ansible-selinux
+    - nginx-loadbalancer
+  tags:
+    - lb

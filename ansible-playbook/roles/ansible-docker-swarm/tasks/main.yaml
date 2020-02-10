@@ -1,0 +1,18 @@
+---
+- name: Resolve ansible dependencies for docker-swarm
+  block:
+    - name: Install packages with dnf
+      dnf:
+        name:
+          - python3-pip
+        state: present
+    - name: Install packages with pip3
+      pip:
+        executable: pip3
+        name:
+          - docker
+          - jsondiff
+          - pyyaml
+          - docker-compose
+
+

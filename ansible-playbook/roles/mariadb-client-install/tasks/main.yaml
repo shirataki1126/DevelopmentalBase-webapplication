@@ -1,0 +1,6 @@
+---
+- name: Install mariadb for client
+  dnf:
+    name:
+      - mariadb
+    state: present

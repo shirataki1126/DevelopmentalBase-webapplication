@@ -1,0 +1,23 @@
+---
+- name: Copy the EPEL repository definition
+  copy:
+    src: epel.repo
+    dest: /etc/yum.repos.d/epel.repo
+
+- name: Copy the EPEL repository definition
+  copy:
+    src: epel-testing.repo
+    dest: /etc/yum.repos.d/epel-testing.repo
+
+- name: Install Firewalld
+  dnf:
+    name:
+      - firewalld
+    state: present
+
+- name: Manage firewalld service state
+  systemd:
+    name: firewalld
+    state: started
+    daemon_reload: yes
+    enabled: yes

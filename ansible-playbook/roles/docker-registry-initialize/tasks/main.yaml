@@ -1,0 +1,23 @@
+---
+- name: Pull the official registry image
+  docker_image:
+    name: registry
+    source: pull
+
+- name: Start the registry container
+  docker_container:
+    name: registry
+    image: registry
+    state: started
+    restart: yes
+    restart_policy: always
+    network_mode: host
+    volumes:
+      - "/var/registry:/var/lib/registry:z"
+
+- name: Add firewalld rule for docker-registry service
+  firewalld:
+    service: docker-registry
+    permanent: yes
+    immediate: yes
+    state: enabled

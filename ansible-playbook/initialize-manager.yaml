@@ -1,0 +1,14 @@
+---
+# A playbook for Manager server
+
+- hosts: manager
+  roles:
+    - ansible-docker-swarm
+    - docker-swarm-install
+    - docker-registry-initialize
+    - mariadb-client-install
+    - php-install
+    - nginx-manager
+    - phpmyadmin-install
+  tags:
+    - manager

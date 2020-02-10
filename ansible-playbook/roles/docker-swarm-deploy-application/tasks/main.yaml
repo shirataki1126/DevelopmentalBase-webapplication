@@ -1,0 +1,7 @@
+---
+- name: Deploy application from the compose file
+  docker_stack:
+    state: present
+    name: stack
+    compose:
+      - "{{ docker_compose_path }}/forDeploy/docker-compose.yaml"

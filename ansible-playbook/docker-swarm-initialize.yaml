@@ -1,0 +1,9 @@
+---
+# A playbook for initializing docker swarm cluster
+
+- hosts: manager
+  roles:
+    - docker-swarm-create-cluster
+  tags:
+    - docker-swarm
+

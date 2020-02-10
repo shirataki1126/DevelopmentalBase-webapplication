@@ -1,0 +1,7 @@
+version: "3.7"
+
+services:
+  webapp:
+    image: manager:5000/webapp:latest
+    build:
+      context: ./docker/buildFiles

@@ -1,0 +1,86 @@
+---
+- name: Resolve phpmyadmin dependencies with dnf
+  dnf:
+    name:
+      - php-common
+      - php-json
+      - php-mbstring
+      - php-pecl-zip
+      - php-gd
+      - php-pdo
+      - php-curl
+      - php-libxml
+      - php-mysqlnd
+    state: present
+
+- name: Download sha256sum file for phpmyadmin-latest
+  get_url:
+    url: https://www.phpmyadmin.net/downloads/phpMyAdmin-latest-all-languages.tar.gz.sha256
+    dest: /usr/local/src/phpMyAdmin-latest-all-languages.tar.gz.sha256
+    validate_certs: yes
+
+- name: Modify sha256sum file like for phpmyadmin-latest
+  lineinfile:
+    path: /usr/local/src/phpMyAdmin-latest-all-languages.tar.gz.sha256
+    regexp: '^(.*) +phpMyAdmin-.+-all-languages.tar.gz$'
+    backrefs: yes
+    line: "\\1  phpMyAdmin-latest-all-languages.tar.gz"
+
+- name: Register the checksum value for phpmyadmin-latest
+  shell: cat /usr/local/src/phpMyAdmin-latest-all-languages.tar.gz.sha256 | grep phpMyAdmin- | awk '{ print $1 }'
+  register: phpmyadmin_checksum_value
+
+- name: Download phpmyadmin-latest
+  get_url:
+    url: https://www.phpmyadmin.net/downloads/phpMyAdmin-latest-all-languages.tar.gz
+    dest: /usr/local/src/phpMyAdmin-latest-all-languages.tar.gz
+    validate_certs: yes
+    checksum: sha256:{{ phpmyadmin_checksum_value.stdout }}
+
+- name: Ensure phpmyadmin directory exists
+  file:
+    path: /var/www/html/phpmyadmin
+    state: directory
+
+- name: Unpack downloaded phpmyadmin-latest
+  unarchive:
+    src: /usr/local/src/phpMyAdmin-latest-all-languages.tar.gz
+    dest: /var/www/html/phpmyadmin
+    owner: nginx
+    group: nginx
+    setype: httpd_sys_content_t
+    copy: no
+    extra_opts: [--strip-components=1]
+
+- name: Copy phpmyadmin config file from sample
+  command: cp -p /var/www/html/phpmyadmin/config.sample.inc.php /var/www/html/phpmyadmin/config.inc.php
+
+- name: Configure blowfish_secret in phpmyadmin config file
+  lineinfile:
+    path: /var/www/html/phpmyadmin/config.inc.php
+    regexp: "^(.*blowfish_secret.*) = .*"
+    backrefs: yes
+    line: "\\1 = '{{ phpmyadmin.blowfish_secret }}';"
+  notify:
+    - Reload nginx
+
+- name: Configure server_hostname in phpmyadmin config file
+  lineinfile:
+    path: /var/www/html/phpmyadmin/config.inc.php
+    regexp: "^(\\$cfg\\['Servers'\\]\\[\\$i\\]\\['host'\\]) = .*"
+    backrefs: yes
+    line: "\\1 = '{{ phpmyadmin.server_hostname }}';"
+  notify:
+    - Reload nginx
+
+- name: Ensure temporary directory for phpmyadmin exists
+  file:
+    path: /var/www/html/phpmyadmin/tmp
+    state: directory
+
+- name: Manage php-fpm service state
+  systemd:
+    name: php-fpm
+    state: started
+    daemon_reload: yes
+    enabled: yes

@@ -1,0 +1,12 @@
+---
+# A playbook for Docker host servers
+
+- hosts: docker_hosts
+  roles:
+    - ansible-selinux
+    - ansible-docker-swarm
+    - docker-swarm-install
+    - docker-swarm-join-worker
+    - port-docker_hosts
+  tags:
+    - hosts

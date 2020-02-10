@@ -1,0 +1,8 @@
+---
+# A playbook for updating docker image to docker-registry in manager server
+
+- hosts: manager
+  roles:
+    - docker-registry-update-image
+  tags:
+    - docker

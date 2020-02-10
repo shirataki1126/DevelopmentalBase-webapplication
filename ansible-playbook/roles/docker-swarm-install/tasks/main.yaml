@@ -1,0 +1,55 @@
+---
+- name: Resolve docker dependencies with dnf
+  dnf:
+    name:
+      - dnf-plugins-core
+      - device-mapper-persistent-data
+      - lvm2
+    state: present
+
+- name: Add docker stable repository
+  command: dnf config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
+  args:
+    warn: no
+
+- name: Resolve docker dependencies from rpm
+  dnf:
+    name:
+      - https://download.docker.com/linux/centos/7/x86_64/stable/Packages/containerd.io-1.2.6-3.3.el7.x86_64.rpm
+    state: present
+
+- name: Install docker
+  dnf:
+    name:
+      - docker-ce
+      - docker-ce-cli
+    state: present
+
+- name: Enable IP masquerade in public zone
+  firewalld:
+    zone: public
+    masquerade: yes
+    permanent: yes
+    immediate: yes
+    state: enabled
+
+- name: Add firewalld rule for docker-swarm service
+  firewalld:
+    service: docker-swarm
+    permanent: yes
+    immediate: yes
+    state: enabled
+
+- name: Manage docker service state
+  systemd:
+    name: docker
+    state: started
+    daemon_reload: yes
+    enabled: yes
+
+- name: Copy the docker daemon.json file
+  copy:
+    src: daemon.json
+    dest: /etc/docker/daemon.json
+  notify:
+    - Restart docker

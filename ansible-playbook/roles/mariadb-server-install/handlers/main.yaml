@@ -1,0 +1,6 @@
+---
+- name: Restart mariadb
+  systemd:
+    name: mariadb
+    state: restart
+    daemon_reload: yes

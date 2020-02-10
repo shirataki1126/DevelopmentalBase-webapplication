@@ -1,0 +1,11 @@
+---
+- name: Create a new swarm cluster with default parameters
+  docker_swarm:
+    state: present
+  run_once: yes
+  register: swarm_info
+
+- name: Configure to run manager node as manager-only
+  docker_node:
+    hostname: "{{ inventory_hostname }}"
+    availability: drain

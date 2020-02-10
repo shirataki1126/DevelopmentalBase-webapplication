@@ -1,0 +1,8 @@
+---
+- name: "Create {{ mariadb.webapp.user_name }} as user for web application in mariadb"
+  mysql_user:
+    name: "{{ mariadb.webapp.user_name }}"
+    host: "{{ mariadb.webapp.user_hostnetwork }}.%"
+    password: "{{ mariadb.webapp.user_password }}"
+    priv: "{{ mariadb.webapp.db_name }}.*:ALL,GRANT"
+    state: present

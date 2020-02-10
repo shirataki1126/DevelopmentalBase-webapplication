@@ -1,0 +1,9 @@
+---
+# A playbook for deploying application
+
+- hosts: manager
+  roles:
+    - docker-swarm-deploy-application
+  tags:
+    - docker-swarm
+
