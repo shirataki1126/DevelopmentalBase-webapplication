@@ -94,13 +94,6 @@ Vagrant.configure("2") do |global_config|
     database.vm.provider "virtualbox" do |virtualbox, override|
       virtualbox.cpus = env["DatabaseVmCpus"]
       virtualbox.memory = env["DatabaseVmMemory"]
-      # In external network
-      if env["IsUseHostBridgedNetworkForExternal"]
-        override.vm.network "public_network"
-      else
-        override.vm.network "private_network",
-                            ip: "#{env["IPv4NetworkAddressInExternal"]}.#{env["DatabaseIPv4HostAddress"]}"
-      end
       # In internal network
       override.vm.network "private_network",
         ip: "#{env["IPv4NetworkAddressInInternal"]}.#{env["DatabaseIPv4HostAddress"]}"
@@ -132,6 +125,7 @@ Vagrant.configure("2") do |global_config|
       docker_host.vm.provider "virtualbox" do |virtualbox, override|
         virtualbox.cpus = env["DockerHostVmsCpus"]
         virtualbox.memory = env["DockerHostVmsMemory"]
+        # In internal network
         override.vm.network "private_network",
           ip: "#{env["IPv4NetworkAddressInInternal"]}.#{env["DockerHostVmsIPv4HostAddressAtFirst"] + (i - 1)}"
       end
@@ -174,7 +168,7 @@ Vagrant.configure("2") do |global_config|
       ansible.playbook = "ansible-playbook/#{env["AnsiblePlaybookName"]}"
       ansible.config_file = "ansible-playbook/ansible.cfg"
       ansible.become = true
-      ansible.verbose = true
+      ansible.verbose = false
       ansible.install = true
       ansible.limit = "all"
       ansible.groups = {
@@ -218,6 +212,14 @@ Vagrant.configure("2") do |global_config|
     manager.vm.provider "virtualbox" do |virtualbox, override|
       virtualbox.cpus = env["ManagerVmCpus"]
       virtualbox.memory = env["ManagerVmMemory"]
+      # In external network
+      if env["IsUseHostBridgedNetworkForExternal"]
+        override.vm.network "public_network"
+      else
+        override.vm.network "private_network",
+                            ip: "#{env["IPv4NetworkAddressInExternal"]}.#{env["ManagerIPv4HostAddress"]}"
+      end
+      # In internal network
       override.vm.network "private_network",
                           ip: "#{env["IPv4NetworkAddressInInternal"]}.#{env["ManagerIPv4HostAddress"]}"
     end

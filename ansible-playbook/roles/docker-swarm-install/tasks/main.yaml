@@ -28,7 +28,7 @@
 - name: Enable IP masquerade in public zone
   firewalld:
     zone: public
-    masquerade: yes
+    masquerade: "True"
     permanent: yes
     immediate: yes
     state: enabled
