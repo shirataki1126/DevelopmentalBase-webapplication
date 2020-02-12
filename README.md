@@ -1,0 +1,70 @@
+# DevelopmentalBase-webapplication
+
+This repository is template repository for web application development with using virtual machine and docker container.
+
+![System configuration diagram](./docs/DevelopmentalBase-webapplication_http.svg)
+
+## Requirements
+
+* rsync
+* Vagrant
+* Vagrant Plugins
+  * [vagrant-hostmanager][vagrant-hostmanager]
+  * [vagrant-scp][vagrant-scp]
+* VirtualBox or Hyper-V
+* DHCP server (when use Hyper-V)
+
+## How to use
+
+### Make use as a template
+
+1. Fork this repository.
+1. Confirm forked repository is template repository. (Settings Options)
+
+Then you can create new repository with using forked repository as the template.
+
+### Launch system
+
+#### VirtualBox Users
+
+1. Generate `.env` file with coping `.env.example`.
+  ```bash
+  cp ./.env.example ./.env
+  ```
+2. Modify `.env` file as you like.
+2. Run command, `vagrant up`.
+
+If you do not install required vagrant plugins, you need operate with install dialog when you run command `vagrant up`.
+After the installs have finished, run command `vagrant up` again.
+
+#### Hyper-V Users
+
+writing....
+
+## Dependencies
+
+* Vagrant
+  * Vagrant Cloud
+    * [generic/centos8][vagrant-centos8]
+  * [vagrant-hostmanager][vagrant-hostmanager]
+  * [vagrant-scp][vagrant-scp]
+* Ansible(Python3)
+* Docker
+  * Docker Engine
+  * Docker Compose
+  * Docker Swarm
+  * Docker Hub
+    * [centos:centos8][docker-centos] (Docker Official Image)
+* NGINX
+* MariaDB
+* phpMyAdmin
+
+## License
+
+See the included [LICENSE.md](./LICENSE.md) file for more details.
+
+<!-- URL links -->
+[vagrant-centos8]:https://app.vagrantup.com/generic/boxes/centos8
+[docker-centos]:https://hub.docker.com/_/centos
+[vagrant-hostmanager]:https://github.com/devopsgroup-io/vagrant-hostmanager
+[vagrant-scp]:https://github.com/invernizzi/vagrant-scp
