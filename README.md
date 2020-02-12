@@ -50,6 +50,7 @@ writing....
   * Docker Engine
   * Docker Compose
   * Docker Swarm
+  * Docker Resistry
   * Docker Hub
     * [centos:centos8][docker-centos] (Docker Official Image)
 * NGINX
