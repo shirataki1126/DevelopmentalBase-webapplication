@@ -1,6 +1,7 @@
 ---
 - name: Create a new swarm cluster with default parameters
   docker_swarm:
+    advertise_addr: "{{ hostvars.manager.ansible_all_ipv4_addresses | ipaddr(hostvars.manager.swarm_cluster_network + '/24') | first }}"
     state: present
   run_once: yes
   register: swarm_info

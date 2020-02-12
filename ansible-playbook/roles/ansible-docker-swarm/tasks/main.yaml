@@ -5,6 +5,7 @@
       dnf:
         name:
           - python3-pip
+          - python3-netaddr
         state: present
     - name: Install packages with pip3
       pip:
@@ -14,5 +15,3 @@
           - jsondiff
           - pyyaml
           - docker-compose
-
-
