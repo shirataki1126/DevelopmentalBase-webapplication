@@ -1,2 +1,5 @@
+.env
 docker-compose/forBuild/docker/buildFiles/application/*
+
+
 !.gitkeep
