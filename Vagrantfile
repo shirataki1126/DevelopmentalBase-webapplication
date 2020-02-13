@@ -202,6 +202,7 @@ Vagrant.configure("2") do |global_config|
           "mariadb" => "'#{database_mariadb_hostvars.to_json}'",
         },
         "manager" => {
+          "swarm_cluster_network" => "#{env["IPv4NetworkAddressInInternal"]}.0",
           "site_servername" => "#{env["ManagerServerName"]}",
           "phpmyadmin" => "'#{manager_phpmyadmin_hostvars.to_json}'",
           "docker_compose_path" => "/vagrant/docker-compose",
