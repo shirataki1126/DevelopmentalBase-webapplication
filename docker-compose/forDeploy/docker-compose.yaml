@@ -9,3 +9,7 @@ services:
       replicas: 2
       placement:
         constraints: [node.role == worker]
+      labels:
+        com.docker.lb.hosts: manager
+        com.docker.lb.port: 11080
+        com.docker.lb.sticky_session_cookie: session

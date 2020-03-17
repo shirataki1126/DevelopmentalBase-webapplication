@@ -1,6 +1,6 @@
 ---
 - name: Install mariadb for client
-  dnf:
+  package:
     name:
       - mariadb
     state: present

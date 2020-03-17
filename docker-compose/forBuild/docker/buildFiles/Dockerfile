@@ -40,4 +40,5 @@ RUN composer global require "laravel/installer"
 EXPOSE 80
 
 ADD startScript.sh /root/startScript.sh
+RUN chmod +x /root/startScript.sh
 CMD ["/root/startScript.sh"]

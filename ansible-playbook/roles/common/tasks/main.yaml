@@ -1,16 +1,65 @@
 ---
-- name: Copy the EPEL repository definition
-  copy:
-    src: epel.repo
-    dest: /etc/yum.repos.d/epel.repo
+- block:
+    - name: Copy the EPEL repository definition
+      copy:
+        src: epel.repo
+        dest: /etc/yum.repos.d/epel.repo
+    - name: Copy the EPEL repository definition
+      copy:
+        src: epel-testing.repo
+        dest: /etc/yum.repos.d/epel-testing.repo
+  when:
+    - ansible_os_family == 'RedHat'
 
-- name: Copy the EPEL repository definition
-  copy:
-    src: epel-testing.repo
-    dest: /etc/yum.repos.d/epel-testing.repo
+- block:
+    - name: Install apt packages with apt
+      apt:
+        name:
+          - apt-transport-https
+          - ca-certificates
+        update_cache: yes
+        state: present
+  when:
+    - ansible_pkg_mgr == 'apt'
+
+- block:
+    - name: Upgrade all packages
+      dnf:
+        name: "*"
+        update_cache: yes
+        state: latest
+  when:
+    - ansible_pkg_mgr == 'dnf'
+
+- block:
+    - name: Upgrade all packages
+      yum:
+        name: "*"
+        update_cache: yes
+        state: latest
+  when:
+    - ansible_pkg_mgr == 'yum'
+
+- block:
+    - name: Upgrade all packages
+      apt:
+        name: "*"
+        update_cache: yes
+        state: latest
+  when:
+    - ansible_pkg_mgr == 'apt'
+
+
+- block:
+    - name: Enable SELinux
+      selinux:
+        policy: targeted
+        state: enforcing
+  when:
+    - ansible_os_family == 'RedHat'
 
 - name: Install Firewalld
-  dnf:
+  package:
     name:
       - firewalld
     state: present
@@ -21,3 +70,17 @@
     state: started
     daemon_reload: yes
     enabled: yes
+
+- name: Resolve ansible dependencies for generate /etc/hosts
+  block:
+    - name: Install packages with package
+      package:
+        name:
+          - python3-pip
+          - python3-netaddr
+        state: present
+
+- name: Generate /etc/hosts file
+  template:
+    src: hosts.j2
+    dest: /etc/hosts

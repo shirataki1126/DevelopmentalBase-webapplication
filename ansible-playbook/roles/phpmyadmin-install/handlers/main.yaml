@@ -4,3 +4,9 @@
     name: nginx
     state: reloaded
     daemon_reload: yes
+
+- name: Restart php-fpm
+  systemd:
+    name: php-fpm
+    state: restarted
+    daemon_reload: yes

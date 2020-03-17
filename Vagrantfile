@@ -46,13 +46,13 @@ Vagrant.configure("2") do |global_config|
   # VM which receive requests from clients
   global_config.vm.define "loadbalancer" do |loadbalancer|
     loadbalancer.vm.hostname = "loadbalancer"
-    loadbalancer.vm.box = env["BaseBox"]
+    loadbalancer.vm.box = env["DefaultBaseBox"]
     loadbalancer.vm.box_version = env["BaseBoxVersionCondition"]
     loadbalancer.ssh.insert_key = false
 
     # Resolve ansible dependencies for running ansible
     loadbalancer.vm.provision "shell",
-                              inline: "dnf install -y python3 python3-dnf"
+                              inline: "#{env["ProvisioningScriptRedHat"]}"
 
     loadbalancer.vm.provider "virtualbox" do |virtualbox, override|
       virtualbox.cpus = env["LoadbalancerVmCpus"]
@@ -83,13 +83,13 @@ Vagrant.configure("2") do |global_config|
   # VM which is database server
   global_config.vm.define "database" do |database|
     database.vm.hostname = "database"
-    database.vm.box = env["BaseBox"]
+    database.vm.box = env["DefaultBaseBox"]
     database.vm.box_version = env["BaseBoxVersionCondition"]
     database.ssh.insert_key = false
 
     # Resolve ansible dependencies for running ansible
     database.vm.provision "shell",
-                          inline: "dnf install -y python3 python3-dnf"
+                          inline: "#{env["ProvisioningScriptRedHat"]}"
 
     database.vm.provider "virtualbox" do |virtualbox, override|
       virtualbox.cpus = env["DatabaseVmCpus"]
@@ -111,29 +111,29 @@ Vagrant.configure("2") do |global_config|
   end
 
   # VMs that are hosts of docker containers with docker-swarm for web service
-  (1..env["DockerHostVmsScale"]).each do |i|
-    global_config.vm.define "dockerHost-#{i}" do |docker_host|
-      docker_host.vm.hostname = "dockerHost-#{i}"
-      docker_host.vm.box = env["BaseBox"]
+  (1..env["WorkerVmsScale"]).each do |i|
+    global_config.vm.define "worker-#{i}" do |docker_host|
+      docker_host.vm.hostname = "worker-#{i}"
+      docker_host.vm.box = env["WorkerBaseBox"]
       docker_host.vm.box_version = env["BaseBoxVersionCondition"]
       docker_host.ssh.insert_key = false
 
       # Resolve ansible dependencies for running ansible
       docker_host.vm.provision "shell",
-                               inline: "dnf install -y python3 python3-dnf"
+                               inline: "#{env["ProvisioningScriptDebian"]}"
 
       docker_host.vm.provider "virtualbox" do |virtualbox, override|
-        virtualbox.cpus = env["DockerHostVmsCpus"]
-        virtualbox.memory = env["DockerHostVmsMemory"]
+        virtualbox.cpus = env["WorkerVmsCpus"]
+        virtualbox.memory = env["WorkerVmsMemory"]
         # In internal network
         override.vm.network "private_network",
-          ip: "#{env["IPv4NetworkAddressInInternal"]}.#{env["DockerHostVmsIPv4HostAddressAtFirst"] + (i - 1)}"
+          ip: "#{env["IPv4NetworkAddressInInternal"]}.#{env["WorkerVmsIPv4HostAddressAtFirst"] + (i - 1)}"
       end
 
       docker_host.vm.provider "hyperv" do |hyperv, override|
         hyperv.enable_virtualization_extensions = true
-        hyperv.cpus = env["DockerHostVmsCpus"]
-        hyperv.memory = env["DockerHostVmsMemory"]
+        hyperv.cpus = env["WorkerVmsCpus"]
+        hyperv.memory = env["WorkerVmsMemory"]
         # Select network interface
         override.vm.network "private_network", bridge: "#{env["SwitchName"]}"
       end
@@ -143,7 +143,7 @@ Vagrant.configure("2") do |global_config|
   # VM which manage servers
   global_config.vm.define "manager" do |manager|
     manager.vm.hostname = "manager"
-    manager.vm.box = env["BaseBox"]
+    manager.vm.box = env["DefaultBaseBox"]
     manager.vm.box_version = env["BaseBoxVersionCondition"]
 
     # Copy vagrant insecure_private_key for ssh to other VMs
@@ -160,7 +160,7 @@ Vagrant.configure("2") do |global_config|
 
     # Resolve ansible dependencies for running ansible
     manager.vm.provision "shell",
-                         inline: "dnf install -y python3 python3-dnf"
+                         inline: "#{env["ProvisioningScriptRedHat"]}"
 
     # Run ansible
     manager.vm.provision "ansible_local" do |ansible|
@@ -173,7 +173,7 @@ Vagrant.configure("2") do |global_config|
       ansible.limit = "all"
       ansible.groups = {
         "loadbalancers" => ["loadbalancer"],
-        "docker_hosts" => ["dockerHost-[1:#{env["DockerHostVmsScale"]}]"],
+        "Workers" => ["worker-[1:#{env["WorkerVmsScale"]}]"],
         "databases" => ["database"],
       }
 
@@ -203,9 +203,10 @@ Vagrant.configure("2") do |global_config|
         },
         "manager" => {
           "swarm_cluster_network" => "#{env["IPv4NetworkAddressInInternal"]}.0",
+          "swarm_cluster_network_cidr" => "#{env["IPv4NetworkCIDRInInternal"]}",
           "site_servername" => "#{env["ManagerServerName"]}",
           "phpmyadmin" => "'#{manager_phpmyadmin_hostvars.to_json}'",
-          "docker_compose_path" => "/vagrant/docker-compose",
+          "docker_compose_path" => "../docker-compose",
         },
       }
     end

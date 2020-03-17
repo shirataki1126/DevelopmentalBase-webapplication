@@ -1,0 +1,27 @@
+---
+- name: Resolve php-fpm dependencies with package
+  package:
+    name:
+      - php-fpm
+    state: present
+
+- name: Configure process user in /etc/php-fpm.d/www.conf
+  lineinfile:
+    path: /etc/php-fpm.d/www.conf
+    regexp: "^user = apache"
+    backrefs: yes
+    line: "user = nginx"
+
+- name: Configure process group in /etc/php-fpm.d/www.conf
+  lineinfile:
+    path: /etc/php-fpm.d/www.conf
+    regexp: "^group = apache"
+    backrefs: yes
+    line: "group = nginx"
+
+- name: Manage php-fpm service state
+  systemd:
+    name: php-fpm
+    state: started
+    daemon_reload: yes
+    enabled: yes

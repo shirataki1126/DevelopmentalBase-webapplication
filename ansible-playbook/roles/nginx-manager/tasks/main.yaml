@@ -5,7 +5,7 @@
     dest: /etc/yum.repos.d/nginx.repo
 
 - name: Install nginx
-  dnf:
+  package:
     name: nginx
     state: present
 
@@ -37,11 +37,14 @@
     immediate: yes
     state: enabled
 
-- name: Toggle SELinux boolean for connecting database
-  seboolean:
-    name: httpd_can_network_connect_db
-    state: yes
-    persistent: yes
+- block:
+    - name: Toggle SELinux boolean for connecting database
+      seboolean:
+        name: httpd_can_network_connect_db
+        state: yes
+        persistent: yes
+  when:
+    - ansible_os_family == 'RedHat'
 
 - name: Manage nginx service state
   systemd:

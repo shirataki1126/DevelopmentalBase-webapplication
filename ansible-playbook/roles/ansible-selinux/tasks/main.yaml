@@ -1,8 +1,11 @@
 ---
-- name: Resolve ansible dependencies for selinux
-  dnf:
-    name:
-      - python3-libselinux
-      - python3-libsemanage
-      - python3-policycoreutils
-    state: present
+- block:
+    - name: Resolve ansible dependencies for selinux
+      package:
+        name:
+          - python3-libselinux
+          - python3-libsemanage
+          - python3-policycoreutils
+        state: present
+  when:
+    - ansible_os_family == 'RedHat'

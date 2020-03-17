@@ -1,12 +1,16 @@
 ---
 - name: Create a new swarm cluster with default parameters
   docker_swarm:
-    advertise_addr: "{{ hostvars.manager.ansible_all_ipv4_addresses | ipaddr(hostvars.manager.swarm_cluster_network + '/24') | first }}"
+    advertise_addr: "{{ hostvars.manager.ansible_all_ipv4_addresses | ipaddr(hostvars.manager.swarm_cluster_network + hostvars.manager.swarm_cluster_network_cidr) | first }}"
     state: present
   run_once: yes
   register: swarm_info
 
+- name: Get FQDN of manager machine
+  shell: hostname
+  register: fqdn
+
 - name: Configure to run manager node as manager-only
   docker_node:
-    hostname: "{{ inventory_hostname }}"
+    hostname: "{{ fqdn.stdout }}"
     availability: drain
