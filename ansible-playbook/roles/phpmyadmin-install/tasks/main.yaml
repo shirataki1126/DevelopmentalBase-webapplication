@@ -1,6 +1,6 @@
 ---
-- name: Resolve phpmyadmin dependencies with dnf
-  dnf:
+- name: Resolve phpmyadmin dependencies with package
+  package:
     name:
       - php-common
       - php-json
@@ -73,9 +73,21 @@
   notify:
     - Reload nginx
 
+- name: Configure TempDir in phpmyadmin config file
+  blockinfile:
+    path: /var/www/html/phpmyadmin/config.inc.php
+    marker: "//// {mark} ANSIBLE MANAGED BLOCK ////"
+    insertafter: EOF
+    block: |
+      $cfg['TempDir'] = '/tmp/phpmyadmin';
+  notify:
+    - Restart php-fpm
+
 - name: Ensure temporary directory for phpmyadmin exists
   file:
-    path: /var/www/html/phpmyadmin/tmp
+    path: /tmp/phpmyadmin
+    owner: nginx
+    group: nginx
     state: directory
 
 - name: Manage php-fpm service state

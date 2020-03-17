@@ -1,0 +1,12 @@
+---
+# Test playbook file.
+
+- hosts: all
+  roles:
+    - ansible-selinux
+    - common
+
+- import_playbook: initialize-manager.yaml
+
+- import_playbook: docker-swarm-initialize.yaml
+- import_playbook: docker-registry-update-image.yaml

@@ -2,9 +2,9 @@
 - name: Build docker image from the compose file
   command: /usr/local/bin/docker-compose build
   args:
-    chdir: "{{ docker_compose_path }}/forBuild"
+    chdir: "{{ playbook_dir }}/{{ docker_compose_path }}/forBuild"
 
 - name: Push docker image to local registry
   command: /usr/local/bin/docker-compose push
   args:
-    chdir: "{{ docker_compose_path }}/forBuild"
+    chdir: "{{ playbook_dir }}/{{ docker_compose_path }}/forBuild"

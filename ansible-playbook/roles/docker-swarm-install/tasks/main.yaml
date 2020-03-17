@@ -1,25 +1,67 @@
 ---
-- name: Resolve docker dependencies with dnf
-  dnf:
-    name:
-      - dnf-plugins-core
-      - device-mapper-persistent-data
-      - lvm2
-    state: present
+- block:
+    - name: Install dnf-config-manager
+      dnf:
+        name:
+          - dnf-plugins-core
+        state: present
+    - name: Add docker stable repository
+      command: dnf config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
+      args:
+        warn: no
+  when:
+    - ansible_os_family == 'RedHat'
+    - ansible_pkg_mgr == 'dnf'
 
-- name: Add docker stable repository
-  command: dnf config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
-  args:
-    warn: no
+- block:
+    - name: Install yum-config-manager
+      yum:
+        name:
+          - yum-utils
+        state: present
+    - name: Add docker stable repository
+      command: yum-config-manager --add-repo=https://download.docker.com/linux/centos/docker-ce.repo
+      args:
+        warn: no
+  when:
+    - ansible_os_family == 'RedHat'
+    - ansible_pkg_mgr == 'yum'
 
-- name: Resolve docker dependencies from rpm
-  dnf:
-    name:
-      - https://download.docker.com/linux/centos/7/x86_64/stable/Packages/containerd.io-1.2.6-3.3.el7.x86_64.rpm
-    state: present
+- block:
+    - name: Add docker GPG key
+      apt_key:
+        url: https://download.docker.com/linux/ubuntu/gpg
+        state: present
+    - name: Add docker stable repository
+      apt_repository:
+        repo: deb [arch=amd64] https://download.docker.com/linux/{{ansible_distribution|lower}} {{ansible_distribution_release}} stable
+        state: present
+  when:
+    - ansible_os_family == 'Debian'
+    - ansible_pkg_mgr == 'apt'
+
+- block:
+    - name: Resolve docker dependencies from rpm
+      package:
+        name:
+          - https://download.docker.com/linux/centos/7/x86_64/stable/Packages/containerd.io-1.2.6-3.3.el7.x86_64.rpm
+        state: present
+  when:
+    - ansible_os_family == 'RedHat'
+
+- block:
+    - name: Resolve docker dependencies with apt
+      apt:
+        name:
+          - containerd.io
+          - software-properties-common
+        update_cache: yes
+        state: present
+  when:
+    - ansible_os_family == 'Debian'
 
 - name: Install docker
-  dnf:
+  package:
     name:
       - docker-ce
       - docker-ce-cli
@@ -53,3 +95,9 @@
     dest: /etc/docker/daemon.json
   notify:
     - Restart docker
+
+- name: Force restart docker
+  systemd:
+    name: docker
+    state: restarted
+    daemon_reload: yes

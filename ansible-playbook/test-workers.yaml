@@ -1,0 +1,12 @@
+---
+# Test playbook file.
+
+- hosts: all
+  roles:
+    - ansible-selinux
+    - common
+
+- import_playbook: initialize-workers.yaml
+
+# Cannot check
+# - import_playbook: docker-swarm-join-worker.yaml

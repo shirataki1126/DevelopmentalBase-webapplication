@@ -1,8 +1,8 @@
 ---
-- name: Join as worker to docker-swarm
+- name: Join as Worker to docker-swarm
   docker_swarm:
     state: join
-    advertise_addr: "{{ ansible_all_ipv4_addresses | ipaddr(hostvars.manager.swarm_cluster_network + '/24') | first }}"
+    advertise_addr: "{{ ansible_all_ipv4_addresses | ipaddr(hostvars.manager.swarm_cluster_network + hostvars.manager.swarm_cluster_network_cidr) | first }}"
     join_token: "{{ hostvars.manager.swarm_info.swarm_facts.JoinTokens.Worker }}"
     remote_addrs:
-      - "{{ hostvars.manager.ansible_all_ipv4_addresses | ipaddr(hostvars.manager.swarm_cluster_network + '/24') | first }}"
+      - "{{ hostvars.manager.ansible_all_ipv4_addresses | ipaddr(hostvars.manager.swarm_cluster_network + hostvars.manager.swarm_cluster_network_cidr) | first }}"

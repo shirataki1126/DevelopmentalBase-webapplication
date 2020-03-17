@@ -1,7 +1,0 @@
----
-- name: Create a database for web application in mariadb
-  mysql_db:
-    name: "{{ mariadb.webapp.db_name }}"
-    encoding: "{{ mariadb.webapp.db_encoding }}"
-    collation: "{{ mariadb.webapp.db_collation }}"
-    state: present

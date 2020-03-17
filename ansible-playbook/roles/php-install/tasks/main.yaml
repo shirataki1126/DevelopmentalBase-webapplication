@@ -1,17 +1,62 @@
 ---
-- name: Add remi repository from rpm
-  dnf:
-    name:
-      - http://rpms.famillecollet.com/enterprise/remi-release-8.rpm
-    state: present
+- block:
+    - name: Add remi repository from rpm
+      dnf:
+        name:
+          - http://rpms.famillecollet.com/enterprise/remi-release-8.rpm
+        state: present
+    - name: Enable php-7.4 in remi
+      command: dnf -y module enable php:remi-7.4
+      args:
+        warn: no
+    - name: Install php
+      dnf:
+        name:
+          - php
+        state: present
+  when:
+    - ansible_os_family == 'RedHat'
+    - ansible_pkg_mgr == 'dnf'
 
-- name: Enable php-7.4 in remi
-  command: dnf -y module enable php:remi-7.4
-  args:
-    warn: no
+- block:
+    - name: Add remi repository from rpm
+      yum:
+        name:
+          - http://rpms.famillecollet.com/enterprise/remi-release-8.rpm
+        state: present
+    - name: Enable php-7.4 in remi
+      command: yum-config-manager --enable remi-php74
+      args:
+        warn: no
+    - name: Install php
+      yum:
+        name:
+          - php
+        state: present
+  when:
+    - ansible_os_family == 'RedHat'
+    - ansible_pkg_mgr == 'yum'
 
-- name: Install php
-  dnf:
-    name:
-      - php
-    state: present
+- block:
+    - name: Install software-properties-common
+      apt:
+        name:
+          - software-properties-common
+        update_cache: yes
+        state: present
+    - name: Add PHP repository with PPA
+      apt_repository:
+        repo: ppa:ondrej/php
+    - name: Install php
+      apt:
+        name:
+          - php7.4
+        update_cache: yes
+        state: present
+  when:
+    - ansible_os_family == 'Debian'
+
+- name: Copy php.ini to /etc/php.ini
+  copy:
+    src: php.ini
+    dest: /etc/php.ini

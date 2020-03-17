@@ -1,0 +1,8 @@
+---
+# A playbook for Docker host servers
+
+- hosts: workers
+  roles:
+    - docker-swarm-join-worker
+  tags:
+    - docker-swarm

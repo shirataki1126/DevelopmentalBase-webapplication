@@ -9,6 +9,8 @@
     - mariadb-client-install
     - php-install
     - nginx-manager
+    - php-fpm-install
     - phpmyadmin-install
+    - composer-install
   tags:
     - manager

@@ -3,16 +3,13 @@
 
 - hosts: all
   roles:
+    - ansible-selinux
     - common
 
 - import_playbook: initialize-manager.yaml
+- import_playbook: initialize-workers.yaml
 
 - import_playbook: docker-swarm-initialize.yaml
-- import_playbook: initialize-docker_hosts.yaml
-
-- import_playbook: initialize-database.yaml
-
+- import_playbook: docker-swarm-join-worker.yaml
 - import_playbook: docker-registry-update-image.yaml
 - import_playbook: docker-swarm-deploy-application.yaml
-
-- import_playbook: initialize-loadbalancer.yaml
